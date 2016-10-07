@@ -129,15 +129,15 @@ func executeTemplate(context interface{}, w io.Writer, layouts ...string) {
 		if templ := Lookup(name); templ != nil {
 			err := templ.Execute(w, context)
 			if err != nil {
-				jww.ERROR.Println(err, "in", name)
+				helpers.DistinctErrorLog.Println(err, "in", name)
 			}
 			worked = true
 			break
 		}
 	}
 	if !worked {
-		jww.ERROR.Println("Unable to render", layouts)
-		jww.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+		helpers.DistinctErrorLog.Println("Unable to render", layouts)
+		helpers.DistinctErrorLog.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
 	}
 }
 
@@ -336,7 +336,7 @@ func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) er
 			return err
 		}
 
-		jww.DEBUG.Printf("Add template file from path %s", path)
+		helpers.DistinctErrorLog.Printf("Add template file from path %s", path)
 
 		return t.AddTemplate(name, string(b))
 	}
@@ -377,16 +377,16 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
 			if err != nil {
-				jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
+				helpers.DistinctErrorLog.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
 			linkfi, err := hugofs.Source().Stat(link)
 			if err != nil {
-				jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
+				helpers.DistinctErrorLog.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
 			}
 			if !linkfi.Mode().IsRegular() {
-				jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
+				helpers.DistinctErrorLog.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
 			}
 			return nil
 		}
@@ -460,7 +460,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		return nil
 	}
 	if err := helpers.SymbolicWalk(hugofs.Source(), absPath, walker); err != nil {
-		jww.ERROR.Printf("Failed to load templates: %s", err)
+		helpers.DistinctErrorLog.Printf("Failed to load templates: %s", err)
 	}
 }
 
@@ -474,6 +474,6 @@ func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
 
 func (t *GoHTMLTemplate) PrintErrors() {
 	for _, e := range t.errors {
-		jww.ERROR.Println(e.err)
+		helpers.DistinctErrorLog.Println(e.err)
 	}
 }
